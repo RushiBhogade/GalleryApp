@@ -13,6 +13,7 @@ import {
   Animated,
   Easing,
   Alert,
+  useWindowDimensions,
 } from 'react-native';
 import {useSelector, useDispatch} from 'react-redux';
 import {
@@ -23,6 +24,7 @@ import {
   fetchAlbums,
 } from '../redux/imagesSlice';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import NetInfo from '@react-native-community/netinfo';
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
 import {
   faSearch,
@@ -30,7 +32,6 @@ import {
   faChevronRight,
 } from '@fortawesome/free-solid-svg-icons';
 
-const {width} = Dimensions.get('window');
 const ALBUM_HEIGHT = 180;
 
 const GalleryScreen = ({navigation}) => {
@@ -40,18 +41,32 @@ const GalleryScreen = ({navigation}) => {
   const status = useSelector(state => state.images.status);
   const searchQuery = useSelector(state => state.images.searchQuery);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isOffline, setIsOffline] = useState(false);
   const colorScheme = useColorScheme();
   const [searchActive, setSearchActive] = useState(false);
   const searchBarWidth = useRef(new Animated.Value(0)).current;
   const scrollY = useRef(new Animated.Value(0)).current;
+  const {width} = useWindowDimensions();
 
   useEffect(() => {
-    loadCachedImages();
-    if (status === 'idle') {
-      dispatch(fetchImages());
-      dispatch(fetchAlbums());
-    }
-  }, [status, dispatch]);
+    const fetchData = async () => {
+      try {
+        const networkState = await NetInfo.fetch();
+        setIsOffline(!networkState.isConnected);
+
+        if (networkState.isConnected) {
+          dispatch(fetchImages());
+          dispatch(fetchAlbums());
+        } else {
+          loadCachedImages();
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+
+    fetchData();
+  }, [dispatch]);
 
   const loadCachedImages = async () => {
     try {
@@ -67,15 +82,28 @@ const GalleryScreen = ({navigation}) => {
     }
   };
 
+  const cacheImages = async images => {
+    try {
+      await AsyncStorage.setItem('cachedImages', JSON.stringify(images));
+    } catch (error) {
+      console.error('Error caching images:', error);
+    }
+  };
+
   const handleLoadMore = () => {
-    if (status !== 'loading') {
+    if (status !== 'loading' && !isOffline) {
       dispatch(fetchImages());
     }
   };
 
   const handleRefresh = () => {
     setIsRefreshing(true);
-    dispatch(fetchImages()).then(() => setIsRefreshing(false));
+    dispatch(fetchImages()).then(() => {
+      setIsRefreshing(false);
+      if (!isOffline) {
+        cacheImages(images);
+      }
+    });
   };
 
   const handleDelete = imageId => {
@@ -136,14 +164,9 @@ const GalleryScreen = ({navigation}) => {
 
   const renderImageItem = ({item}) => (
     <TouchableOpacity
-      style={styles.imageContainer}
+      style={[styles.imageContainer, {width: width / 3 - 10}]}
       onPress={() => navigation.navigate('ImageDetail', {image: item})}>
       <Image source={{uri: item.thumbnailUrl}} style={styles.thumbnail} />
-      <TouchableOpacity
-        style={styles.deleteButton}
-        onPress={() => handleDelete(item.id)}>
-        <FontAwesomeIcon icon={faTimes} size={12} color="#fff" />
-      </TouchableOpacity>
     </TouchableOpacity>
   );
 
@@ -165,10 +188,9 @@ const GalleryScreen = ({navigation}) => {
       style={styles.newAlbumsContainer}
       onPress={() => navigation.navigate('NewAlbumsScreen')}>
       <View style={styles.newAlbumsContent}>
-        <Text style={styles.newAlbumsText}>New Albums</Text>
-        <Text style={styles.newAlbumsSubtext}>Scroll and explore</Text>
+        <Text style={styles.newAlbumsText}>For New Albums</Text>
+        <Text style={styles.newAlbumsSubtext}>Scroll down and explore</Text>
       </View>
-      <FontAwesomeIcon icon={faChevronRight} size={20} color="#007AFF" />
     </TouchableOpacity>
   );
 
@@ -266,17 +288,21 @@ const GalleryScreen = ({navigation}) => {
           [{nativeEvent: {contentOffset: {y: scrollY}}}],
           {useNativeDriver: false},
         )}
-        scrollEventThrottle={16}
-        contentContainerStyle={styles.imageList}
-        ListFooterComponent={() =>
-          status === 'loading' && (
-            <ActivityIndicator
-              style={styles.loading}
-              color={colorScheme === 'dark' ? '#fff' : '#000'}
-            />
-          )
-        }
       />
+      {status === 'loading' && (
+        <ActivityIndicator
+          size="large"
+          color="#000"
+          style={styles.loadingIndicator}
+        />
+      )}
+      {isOffline && (
+        <View style={styles.offlineContainer}>
+          <Text style={styles.offlineText}>
+            You are offline. Please check your connection.
+          </Text>
+        </View>
+      )}
     </View>
   );
 };
@@ -284,77 +310,7 @@ const GalleryScreen = ({navigation}) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  header: {
-    padding: 15,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  headerText: {
-    fontSize: 28,
-    fontWeight: 'bold',
-  },
-  searchContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  searchIcon: {
-    marginRight: 10,
-  },
-  searchBarContainer: {
-    overflow: 'hidden',
-  },
-  searchBar: {
-    height: 40,
-    borderRadius: 20,
-    paddingHorizontal: 15,
-  },
-  albumListContainer: {
-    height: ALBUM_HEIGHT,
-    marginBottom: 10,
-  },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginLeft: 15,
-    marginBottom: 10,
-  },
-  albumContainer: {
-    marginRight: 15,
-    alignItems: 'center',
-  },
-  albumImage: {
-    width: 120,
-    height: 120,
-    borderRadius: 10,
-  },
-  albumTitle: {
-    marginTop: 5,
-    fontSize: 14,
-  },
-  imageList: {
-    paddingHorizontal: 5,
-  },
-  imageContainer: {
-    margin: 5,
-    position: 'relative',
-  },
-  thumbnail: {
-    width: width / 3 - 10,
-    height: (width / 3 - 10) * 1.5,
-    borderRadius: 10,
-  },
-  deleteButton: {
-    position: 'absolute',
-    top: 5,
-    right: 5,
-    backgroundColor: 'rgba(255, 0, 0, 0.7)',
-    borderRadius: 15,
-    padding: 5,
-  },
-  loading: {
-    marginVertical: 20,
+    backgroundColor: '#fff',
   },
   darkBackground: {
     backgroundColor: '#121212',
@@ -362,26 +318,83 @@ const styles = StyleSheet.create({
   lightBackground: {
     backgroundColor: '#f5f5f5',
   },
+  header: {
+    padding: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
   darkHeader: {
     backgroundColor: '#1e1e1e',
   },
   lightHeader: {
-    backgroundColor: '#fff',
+    backgroundColor: '#ffffff',
+  },
+  headerText: {
+    fontSize: 20,
+    fontWeight: 'bold',
   },
   darkText: {
-    color: '#fff',
+    color: '#ffffff',
   },
   lightText: {
-    color: '#000',
+    color: '#000000',
+  },
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  searchIcon: {
+    marginRight: 8,
+  },
+  searchBarContainer: {
+    overflow: 'hidden',
+  },
+  searchBar: {
+    height: 40,
+    borderRadius: 20,
+    paddingHorizontal: 16,
+    backgroundColor: '#e0e0e0',
   },
   darkSearchBar: {
-    backgroundColor: '#333',
-    color: '#fff',
+    backgroundColor: '#333333',
   },
   lightSearchBar: {
-    backgroundColor: '#e0e0e0',
-    color: '#000',
+    backgroundColor: '#ffffff',
   },
+  imageContainer: {
+    margin: 5,
+    borderRadius: 5,
+    overflow: 'hidden',
+  },
+  thumbnail: {
+    width: '100%',
+    height: 200,
+    resizeMode: 'cover',
+  },
+  albumListContainer: {
+    marginVertical: 10,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginLeft: 16,
+  },
+  albumContainer: {
+    marginHorizontal: 8,
+    alignItems: 'center',
+  },
+  albumImage: {
+    width: 100,
+    height: 100,
+    borderRadius: 10,
+  },
+  albumTitle: {
+    marginTop: 5,
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+
   newAlbumsContainer: {
     // width: 150,
     // height: 150,
@@ -406,6 +419,17 @@ const styles = StyleSheet.create({
   newAlbumsSubtext: {
     fontSize: 12,
     color: '#666',
+  },
+  loadingIndicator: {
+    marginTop: 20,
+  },
+  offlineContainer: {
+    padding: 20,
+    alignItems: 'center',
+  },
+  offlineText: {
+    fontSize: 16,
+    color: '#ff0000',
   },
 });
 

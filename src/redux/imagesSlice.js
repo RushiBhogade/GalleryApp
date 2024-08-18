@@ -12,7 +12,20 @@ export const fetchImages = createAsyncThunk(
         lastFetchedPage + 1
       }&_limit=20`,
     );
-    return response.data;
+    const images = response.data;
+
+    // Cache images to AsyncStorage
+    try {
+      const cachedImages = await AsyncStorage.getItem('cachedImages');
+      const newImages = cachedImages
+        ? [...JSON.parse(cachedImages), ...images]
+        : images;
+      await AsyncStorage.setItem('cachedImages', JSON.stringify(newImages));
+    } catch (error) {
+      console.error('Error caching images:', error);
+    }
+
+    return images;
   },
 );
 
@@ -21,10 +34,17 @@ export const fetchAlbums = createAsyncThunk('images/fetchAlbums', async () => {
   const response = await axios.get(
     'https://jsonplaceholder.typicode.com/albums',
   );
-  return response.data;
-});
+  const albums = response.data;
 
-// Delete image
+  // Cache albums to AsyncStorage
+  try {
+    await AsyncStorage.setItem('cachedAlbums', JSON.stringify(albums));
+  } catch (error) {
+    console.error('Error caching albums:', error);
+  }
+
+  return albums;
+});
 export const deleteImage = createAsyncThunk(
   'images/deleteImage',
   async imageId => {
@@ -43,37 +63,33 @@ export const deleteAlbum = createAsyncThunk(
     return albumId;
   },
 );
-
+// Define the slice
 const imagesSlice = createSlice({
   name: 'images',
   initialState: {
     data: [],
-    albums: [], // State for albums
+    albums: [],
     status: 'idle',
-    error: null,
-    lastFetchedPage: 0,
     searchQuery: '',
+    lastFetchedPage: 0,
   },
   reducers: {
-    setSearchQuery: (state, action) => {
+    setSearchQuery(state, action) {
       state.searchQuery = action.payload;
+    },
+    setCachedImages(state, action) {
+      state.data = action.payload;
+    },
+    setCachedAlbums(state, action) {
+      state.albums = action.payload;
     },
   },
   extraReducers: builder => {
+    // Add cases for the async thunks
     builder
-      .addCase(fetchImages.pending, state => {
-        state.status = 'loading';
-      })
       .addCase(fetchImages.fulfilled, (state, action) => {
-        state.status = 'succeeded';
         state.data = [...state.data, ...action.payload];
         state.lastFetchedPage += 1;
-        // Cache the data
-        AsyncStorage.setItem('cachedImages', JSON.stringify(state.data));
-      })
-      .addCase(fetchImages.rejected, (state, action) => {
-        state.status = 'failed';
-        state.error = action.error.message;
       })
       .addCase(fetchAlbums.fulfilled, (state, action) => {
         state.albums = action.payload;
@@ -92,11 +108,11 @@ const imagesSlice = createSlice({
         state.data = state.data.filter(
           image => image.albumId !== action.payload,
         );
-        // Update the cache
         AsyncStorage.setItem('cachedImages', JSON.stringify(state.data));
       });
   },
 });
 
-export const {setSearchQuery} = imagesSlice.actions;
+export const {setSearchQuery, setCachedImages, setCachedAlbums} =
+  imagesSlice.actions;
 export default imagesSlice.reducer;

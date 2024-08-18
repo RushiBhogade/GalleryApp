@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, {useState, useRef, useEffect} from 'react';
 import {
   View,
   FlatList,
@@ -13,14 +13,20 @@ import {
   useColorScheme,
   Alert,
 } from 'react-native';
-import { useSelector, useDispatch } from 'react-redux';
-import { useNavigation, useRoute } from '@react-navigation/native';
-import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faSearch, faArrowLeft, faTrash } from '@fortawesome/free-solid-svg-icons';
-import { deleteImage } from '../redux/imagesSlice'; // Import the deleteImage action
+import {useSelector, useDispatch} from 'react-redux';
+import {useNavigation, useRoute} from '@react-navigation/native';
+import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
+import {
+  faSearch,
+  faArrowLeft,
+  faTrash,
+} from '@fortawesome/free-solid-svg-icons';
+import {deleteImage} from '../redux/imagesSlice'; // Import the deleteImage action
+
+const {width, height} = Dimensions.get('window');
 
 const AlbumsScreen = () => {
-  const { albumId } = useRoute().params;
+  const {albumId} = useRoute().params;
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const images = useSelector(state => state.images.data);
@@ -36,7 +42,7 @@ const AlbumsScreen = () => {
 
   useEffect(() => {
     Animated.timing(searchBarWidth, {
-      toValue: isSearching ? Dimensions.get('window').width * 0.7 : 0,
+      toValue: isSearching ? width * 0.7 : 0,
       duration: 300,
       easing: Easing.out(Easing.ease),
       useNativeDriver: false,
@@ -48,7 +54,7 @@ const AlbumsScreen = () => {
   };
 
   const handleImagePress = image => {
-    navigation.navigate('ImageDetail', { image });
+    navigation.navigate('ImageDetail', {image});
   };
 
   const handleDelete = image => {
@@ -69,15 +75,14 @@ const AlbumsScreen = () => {
     );
   };
 
-  const renderItem = ({ item }) => (
+  const renderItem = ({item}) => (
     <View style={styles.imageContainer}>
       <TouchableOpacity onPress={() => handleImagePress(item)}>
-        <Image source={{ uri: item.thumbnailUrl }} style={styles.thumbnail} />
+        <Image source={{uri: item.thumbnailUrl}} style={styles.thumbnail} />
       </TouchableOpacity>
       <TouchableOpacity
         style={styles.deleteButton}
-        onPress={() => handleDelete(item)}
-      >
+        onPress={() => handleDelete(item)}>
         <FontAwesomeIcon icon={faTrash} size={20} color="#fff" />
       </TouchableOpacity>
     </View>
@@ -88,18 +93,15 @@ const AlbumsScreen = () => {
       style={[
         styles.container,
         colorScheme === 'dark' ? styles.darkBackground : styles.lightBackground,
-      ]}
-    >
+      ]}>
       <View
         style={[
           styles.header,
           colorScheme === 'dark' ? styles.darkHeader : styles.lightHeader,
-        ]}
-      >
+        ]}>
         <TouchableOpacity
           style={styles.backButton}
-          onPress={() => navigation.goBack()}
-        >
+          onPress={() => navigation.goBack()}>
           <FontAwesomeIcon
             icon={faArrowLeft}
             size={24}
@@ -112,8 +114,7 @@ const AlbumsScreen = () => {
             colorScheme === 'dark'
               ? styles.darkHeaderText
               : styles.lightHeaderText,
-          ]}
-        >
+          ]}>
           Album {albumId}
         </Text>
         <View style={styles.searchContainer}>
@@ -128,12 +129,11 @@ const AlbumsScreen = () => {
           <Animated.View
             style={[
               styles.searchBarContainer,
-              { width: searchBarWidth },
+              {width: searchBarWidth},
               colorScheme === 'dark'
                 ? styles.darkSearchBar
                 : styles.lightSearchBar,
-            ]}
-          >
+            ]}>
             <TextInput
               style={[
                 styles.searchBar,
@@ -155,12 +155,11 @@ const AlbumsScreen = () => {
         keyExtractor={item => item.id.toString()}
         numColumns={3}
         style={styles.list}
+        contentContainerStyle={styles.listContainer}
       />
     </View>
   );
 };
-
-const { width } = Dimensions.get('window');
 
 const styles = StyleSheet.create({
   container: {
@@ -176,7 +175,7 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   headerText: {
-    fontSize: 20,
+    fontSize: width * 0.05, // Responsive font size
     fontWeight: 'bold',
   },
   searchContainer: {
@@ -188,14 +187,17 @@ const styles = StyleSheet.create({
   },
   searchBarContainer: {
     overflow: 'hidden',
+    borderRadius: 20,
   },
   searchBar: {
     height: 40,
-    borderRadius: 20,
     paddingHorizontal: 15,
   },
-  list: {
-    padding: 10,
+  // list: {
+  //   margin: 10,
+  // },
+  listContainer: {
+    paddingBottom: 20, // Add some padding to the bottom
   },
   imageContainer: {
     margin: 6,
@@ -206,8 +208,8 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   thumbnail: {
-    width: width / 3 - 12,
-    height: width / 3 - 12,
+    width: width / 3 - 12, // Responsive width
+    height: width / 3 - 12, // Responsive height
     borderRadius: 15,
   },
   deleteButton: {

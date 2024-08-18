@@ -9,6 +9,7 @@ import {
   useColorScheme,
   Modal,
   TouchableWithoutFeedback,
+  Alert,
 } from 'react-native';
 import {useDispatch} from 'react-redux';
 import Share from 'react-native-share';
@@ -30,10 +31,28 @@ const ImageDetailScreen = ({route, navigation}) => {
   const colorScheme = useColorScheme();
   const [isImageFullScreen, setIsImageFullScreen] = useState(false);
 
-  const handleDelete = () => {
-    dispatch(deleteImage(image.id));
-    navigation.goBack();
-  };
+ const handleDelete = () => {
+   Alert.alert(
+     'Delete Image',
+     'Are you sure you want to delete this image?',
+     [
+       {
+         text: 'Cancel',
+         onPress: () => console.log('Delete Cancelled'),
+         style: 'cancel',
+       },
+       {
+         text: 'Delete',
+         onPress: () => {
+           dispatch(deleteImage(image.id));
+           navigation.goBack();
+         },
+         style: 'destructive',
+       },
+     ],
+     {cancelable: true},
+   );
+ };
 
   const toggleFullScreen = () => {
     setIsImageFullScreen(!isImageFullScreen);
