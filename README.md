@@ -1,4 +1,4 @@
-Here's a creative and engaging README file for your Gallery App, complete with a touch of flair and visual appeal:
+
 
 ---
 
