@@ -122,3 +122,21 @@ You can download the APK file for the Gallery App from the GitHub Releases page:
 
 This project is licensed under the [MIT License](https://opensource.org/licenses/MIT).
 
+
+![WhatsApp Image 2024-08-18 at 12 18 06 PM](https://github.com/user-attachments/assets/955e5a5c-0812-479b-ab88-30a32ef45bd8)
+![WhatsApp Image 2024-08-18 at 1 00 40 PM](https://github.com/user-attachments/assets/f10c0afe-84db-472c-8c44-56b29e7a8200)
+![WhatsApp Image 2024-08-18 at 1 00 40 PM (1)](https://github.com/user-attachments/assets/6e899a8a-0386-4c1f-b51c-cf4fc80167a6)
+![WhatsApp Image 2024-08-18 at 1 00 41 PM](https://github.com/user-attachments/assets/65a30fb2-d8b9-4ad2-9d54-85a78eb78344)
+![WhatsApp Image 2024-08-18 at 1 00 41 PM (1)](https://github.com/user-attachments/assets/612b6461-ebd1-4193-9023-87c6107df5e8)
+![WhatsApp Image 2024-08-18 at 1 00 42 PM](https://github.com/user-attachments/assets/9b7f3905-5a1a-42ed-bd17-d6e12f711dc3)
+![WhatsApp Image 2024-08-18 at 1 00 42 PM (1)](https://github.com/user-attachments/assets/ee257b7f-a15d-47dc-be39-8d57a9a26b42)
+![WhatsApp Image 2024-08-18 at 12 59 07 PM](https://github.com/user-attachments/assets/a4e46294-2e5b-4112-b6da-02c996647cdc)
+![WhatsApp Image 2024-08-18 at 12 59 06 PM (2)](https://github.com/user-attachments/assets/8092e224-43de-4eee-8bd0-608c73788b69)
+![WhatsApp Image 2024-08-18 at 12 59 06 PM (1)](https://github.com/user-attachments/assets/367373df-b70d-4ec3-a2b6-2e72e91ac954)
+![WhatsApp Image 2024-08-18 at 12 59 05 PM](https://github.com/user-attachments/assets/3f634299-9634-4dd1-8a3d-af06dc8c8e37)
+![WhatsApp Image 2024-08-18 at 12 59 05 PM (1)](https://github.com/user-attachments/assets/613fedfb-eaa4-43ea-bc6e-57892d6cc365)
+![WhatsApp Image 2024-08-18 at 12 59 04 PM](https://github.com/user-attachments/assets/65ee864a-e1af-4c63-8260-1b411d4c1cf7)
+![WhatsApp Image 2024-08-18 at 12 59 04 PM (2)](https://github.com/user-attachments/assets/699cc120-7121-4da7-98fc-6ee495b2984a)
+![WhatsApp Image 2024-08-18 at 12 59 04 PM (1)](https://github.com/user-attachments/assets/55c29efc-354b-43b7-b868-994c94e5b680)
+
+
