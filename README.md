@@ -112,6 +112,12 @@ Welcome to the **Gallery App**, where your images come to life! This mobile gall
 - **Image Sharing**: Spread the joy by sharing images to other apps or social media.
 - **Theming**: Automatically adjust themes based on system preferences for a personalized experience.
 
+## Download the APK
+
+You can download the APK file for the Gallery App from the GitHub Releases page:
+
+- **[Download Photos APK](https://github.com/RushiBhogade/GalleryApp/releases/tag/v1)**
+
 ## 📝 License
 
 This project is licensed under the [MIT License](https://opensource.org/licenses/MIT).
